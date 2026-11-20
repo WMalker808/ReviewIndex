@@ -1,0 +1,1405 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A searchable prototype index of Guardian television reviews.">
+    <title>The TV Review Index</title>
+    <style>
+:root {
+  --navy: #052962;
+  --navy-deep: #041f4a;
+  --blue: #506991;
+  --blue-light: #c1d8fc;
+  --yellow: #ffe500;
+  --red: #c70000;
+  --paper: #f6f6f3;
+  --white: #ffffff;
+  --ink: #121212;
+  --muted: #5b5b5b;
+  --line: #dcdcdc;
+  --line-dark: #999999;
+  --focus: #0077b6;
+  --serif: Georgia, "Times New Roman", serif;
+  --sans: Arial, Helvetica, sans-serif;
+  --shell: 1260px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+a { color: inherit; }
+
+button,
+input,
+select { font: inherit; }
+
+button,
+select,
+input[type="checkbox"] { cursor: pointer; }
+
+:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 3px;
+}
+
+.shell {
+  width: min(calc(100% - 40px), var(--shell));
+  margin-inline: auto;
+}
+
+.skip-link {
+  position: fixed;
+  z-index: 100;
+  top: 8px;
+  left: 8px;
+  padding: 10px 14px;
+  background: var(--yellow);
+  color: var(--ink);
+  font-weight: 700;
+  transform: translateY(-150%);
+}
+
+.skip-link:focus { transform: translateY(0); }
+
+.support-strip {
+  background: var(--yellow);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.support-strip__inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 34px;
+}
+
+.support-strip a { font-weight: 400; }
+
+.masthead {
+  background: var(--navy);
+  color: var(--white);
+}
+
+.masthead__inner {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  min-height: 190px;
+  padding-block: 34px 24px;
+}
+
+.brand-block { max-width: 700px; }
+
+.eyebrow,
+.kicker {
+  margin: 0 0 6px;
+  color: var(--blue-light);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.wordmark {
+  display: inline-block;
+  font-family: var(--serif);
+  font-size: clamp(50px, 7vw, 88px);
+  font-weight: 700;
+  letter-spacing: -0.055em;
+  line-height: 0.76;
+  text-decoration: none;
+}
+
+.masthead__deck {
+  max-width: 350px;
+  margin: 0 0 2px 30px;
+  color: var(--blue-light);
+  font-family: var(--serif);
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.section-nav {
+  border-top: 1px solid rgba(255, 255, 255, 0.28);
+  background: var(--navy-deep);
+}
+
+.section-nav__inner {
+  display: flex;
+  min-height: 44px;
+  align-items: stretch;
+}
+
+.section-nav a {
+  display: flex;
+  align-items: center;
+  padding-inline: 16px;
+  border-right: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.section-nav a:first-child { border-left: 1px solid rgba(255, 255, 255, 0.18); }
+
+.section-nav a:hover,
+.section-nav a.is-active { background: rgba(255, 255, 255, 0.12); }
+
+.section-nav__source {
+  margin-left: auto;
+  align-self: center;
+  color: var(--blue-light);
+  font-size: 12px;
+}
+
+.search-hero {
+  padding-block: 28px 34px;
+  background: var(--white);
+  border-bottom: 1px solid var(--line);
+}
+
+.search-hero__heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 30px;
+  margin-bottom: 22px;
+}
+
+.search-hero .kicker,
+.about .kicker { color: var(--red); }
+
+h1,
+h2,
+h3,
+p { margin-top: 0; }
+
+h1,
+h2,
+h3 { font-family: var(--serif); }
+
+h1 {
+  margin-bottom: 0;
+  font-size: clamp(34px, 5vw, 56px);
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+.archive-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 3px;
+  color: var(--muted);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.archive-stat strong {
+  color: var(--navy);
+  font-family: var(--serif);
+  font-size: 30px;
+}
+
+.search-form label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.search-form__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  max-width: 960px;
+}
+
+.search-form input {
+  width: 100%;
+  min-height: 58px;
+  padding: 10px 18px;
+  border: 2px solid var(--ink);
+  border-right: 0;
+  border-radius: 0;
+  background: var(--white);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 21px;
+}
+
+.search-form button {
+  min-width: 126px;
+  border: 0;
+  background: var(--navy);
+  color: var(--white);
+  font-weight: 700;
+}
+
+.search-form button:hover { background: var(--navy-deep); }
+
+.archive {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 30px;
+  padding-block: 30px 70px;
+}
+
+.filter-panel {
+  align-self: start;
+  border-top: 5px solid var(--navy);
+}
+
+.filter-panel summary {
+  display: none;
+  list-style: none;
+  padding-block: 12px;
+  font-weight: 700;
+}
+
+.filter-summary {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.filter-panel__body { padding-top: 12px; }
+
+.filter-panel fieldset,
+.field-group {
+  margin: 0;
+  padding: 0 0 24px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.filter-panel fieldset { margin-bottom: 20px; }
+
+.filter-panel legend,
+.field-group > label {
+  display: block;
+  margin-bottom: 10px;
+  padding: 0;
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 33px;
+}
+
+.check-row input {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: var(--navy);
+}
+
+.stars {
+  color: var(--navy);
+  font-size: 15px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.star-empty { color: #b7b7b7; }
+
+.check-row--text { font-size: 14px; }
+
+.filter-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.field-group {
+  margin-bottom: 20px;
+}
+
+.field-group select,
+.sort-control select {
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 34px 8px 10px;
+  border: 1px solid var(--line-dark);
+  border-radius: 0;
+  background: var(--white);
+  color: var(--ink);
+}
+
+.text-button {
+  padding: 0 0 2px;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  background: transparent;
+  color: var(--navy);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.results-column { min-width: 0; }
+
+.results-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 54px;
+  padding: 0 0 12px;
+  border-top: 5px solid var(--navy);
+  border-bottom: 1px solid var(--line-dark);
+}
+
+.results-toolbar > p {
+  margin: 8px 0 0;
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.sort-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.sort-control select { width: auto; min-width: 165px; }
+
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 18px;
+  margin-block: 14px;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  border: 1px solid var(--blue);
+  background: var(--white);
+  color: var(--navy);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.filter-chip button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 17px;
+  line-height: 1;
+}
+
+.review-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-left: 1px solid var(--line);
+}
+
+.review-card {
+  display: flex;
+  min-height: 340px;
+  flex-direction: column;
+  padding: 14px 14px 16px;
+  border-top: 4px solid var(--navy);
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: var(--white);
+}
+
+.review-card__type {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 26px;
+  margin-bottom: 8px;
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.review-card__rating {
+  color: var(--navy);
+  font-size: 14px;
+  letter-spacing: 0;
+}
+
+.review-card h2 {
+  margin-bottom: 8px;
+  font-size: 25px;
+  letter-spacing: -0.02em;
+  line-height: 1.03;
+}
+
+.review-card h2 a { text-decoration: none; }
+
+.review-card h2 a:hover { text-decoration: underline; text-decoration-thickness: 1px; }
+
+.review-card__headline {
+  margin-bottom: 10px;
+  color: var(--navy);
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.review-card__summary {
+  display: -webkit-box;
+  overflow: hidden;
+  margin-bottom: 18px;
+  color: #333333;
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.32;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+}
+
+.review-card__meta {
+  margin: 0;
+  padding-top: 13px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.review-card__meta strong { color: var(--ink); }
+
+.reader-rating {
+  margin-top: auto;
+  padding: 12px 0 10px;
+  border-top: 1px solid var(--line);
+}
+
+.reader-rating__summary {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.reader-rating__summary strong {
+  color: var(--navy);
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1;
+}
+
+.reader-rating__summary .reader-rating__label {
+  margin-right: auto;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.reader-rating__buttons {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.reader-star {
+  width: 29px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #b7b7b7;
+  font-size: 23px;
+  line-height: 1;
+}
+
+.reader-star:hover,
+.reader-star:focus-visible,
+.reader-star.is-selected { color: var(--navy); }
+
+.reader-rating__hint {
+  margin: 3px 0 0 5px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.reader-rating__status {
+  min-height: 16px;
+  margin: 3px 0 0;
+  color: var(--navy);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.review-card__link {
+  display: inline-block;
+  margin-top: 10px;
+  color: var(--navy);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding-top: 28px;
+}
+
+.pagination[hidden] { display: none; }
+
+.pagination p { margin: 0; font-size: 14px; }
+
+.pagination button {
+  min-width: 100px;
+  padding: 9px 13px;
+  border: 1px solid var(--navy);
+  background: var(--white);
+  color: var(--navy);
+  font-weight: 700;
+}
+
+.pagination button:hover:not(:disabled) { background: var(--blue-light); }
+
+.pagination button:disabled { cursor: not-allowed; opacity: 0.45; }
+
+.empty-state,
+.error-state {
+  grid-column: 1 / -1;
+  padding: 50px 20px;
+  border-top: 4px solid var(--navy);
+  background: var(--white);
+  text-align: center;
+}
+
+.empty-state h2,
+.error-state h2 { margin-bottom: 8px; font-size: 28px; }
+
+.empty-state p,
+.error-state p { margin-bottom: 0; color: var(--muted); }
+
+.about {
+  padding-block: 46px 55px;
+  border-top: 1px solid var(--line);
+  background: var(--white);
+}
+
+.about__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.about h2 {
+  max-width: 480px;
+  margin-bottom: 0;
+  color: var(--navy);
+  font-size: clamp(34px, 4vw, 50px);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.about__copy {
+  max-width: 590px;
+  padding-top: 24px;
+  font-family: var(--serif);
+  font-size: 18px;
+}
+
+.about__copy p:last-child { color: var(--muted); font-size: 15px; }
+
+footer {
+  padding-block: 38px;
+  background: var(--navy-deep);
+  color: var(--white);
+}
+
+.footer__inner {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  color: var(--blue-light);
+  font-size: 13px;
+}
+
+.footer__inner p { margin: 0; }
+.footer__inner strong { color: var(--white); font-family: var(--serif); font-size: 18px; }
+
+@media (max-width: 960px) {
+  .review-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .masthead__deck { display: none; }
+}
+
+@media (max-width: 760px) {
+  .shell { width: min(calc(100% - 24px), var(--shell)); }
+
+  .masthead__inner { min-height: 148px; padding-block: 26px 22px; }
+  .wordmark { font-size: clamp(44px, 14vw, 68px); }
+  .section-nav a { padding-inline: 12px; }
+  .section-nav__source { display: none; }
+
+  .search-hero__heading { align-items: start; flex-direction: column; gap: 12px; }
+  .archive-stat { order: 2; }
+  .search-form__row { grid-template-columns: 1fr; }
+  .search-form input { border-right: 2px solid var(--ink); }
+  .search-form button { min-height: 50px; }
+
+  .archive { display: block; padding-block: 18px 50px; }
+  .filter-panel { margin-bottom: 20px; border-bottom: 1px solid var(--line); }
+  .filter-panel summary { display: flex; justify-content: space-between; gap: 16px; cursor: pointer; }
+  .filter-panel:not([open]) .filter-panel__body { display: none; }
+  .filter-panel__body { padding-bottom: 22px; }
+
+  .results-toolbar { align-items: start; flex-direction: column; gap: 8px; padding-block: 10px 14px; }
+  .results-toolbar > p { margin-top: 0; }
+  .sort-control { width: 100%; justify-content: space-between; margin-top: 0; }
+  .sort-control select { flex: 1; max-width: 240px; }
+
+  .review-grid { grid-template-columns: 1fr; }
+  .review-card { min-height: 0; }
+  .about__grid { grid-template-columns: 1fr; gap: 10px; }
+  .about__copy { padding-top: 0; }
+  .footer__inner { flex-direction: column; gap: 18px; }
+}
+
+@media (max-width: 420px) {
+  .support-strip__inner a { display: none; }
+  .section-nav a { font-size: 13px; }
+  .review-card h2 { font-size: 23px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+</style>
+    
+  </head>
+  <body id="top">
+    <a class="skip-link" href="#results">Skip to reviews</a>
+
+    <div class="support-strip">
+      <div class="shell support-strip__inner">
+        <span>Independent prototype</span>
+        <a href="#about">About this index</a>
+      </div>
+    </div>
+
+    <header class="masthead">
+      <div class="shell masthead__inner">
+        <div class="brand-block">
+          <p class="eyebrow">Television &amp; radio</p>
+          <a class="wordmark" href="#top" aria-label="The TV Review Index home">
+            The TV Review<br>Index
+          </a>
+        </div>
+        <p class="masthead__deck">Find the verdict on thousands of shows reviewed by Guardian critics.</p>
+      </div>
+      <nav class="section-nav" aria-label="Sections">
+        <div class="shell section-nav__inner">
+          <a class="is-active" href="#top">Reviews</a>
+          <a href="#browse">Browse</a>
+          <a href="#about">About</a>
+          <span class="section-nav__source">Data source: Guardian Open Platform</span>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <section class="search-hero" aria-labelledby="page-heading">
+        <div class="shell">
+          <div class="search-hero__heading">
+            <div>
+              <p class="kicker">The archive, made searchable</p>
+              <h1 id="page-heading">What should you watch?</h1>
+            </div>
+            <p class="archive-stat"><strong id="archive-count">—</strong><span>reviews indexed</span></p>
+          </div>
+
+          <form class="search-form" id="search-form" role="search">
+            <label for="search-input">Search by programme or keyword</label>
+            <div class="search-form__row">
+              <input id="search-input" name="q" type="search" placeholder="Try “Doctor Who” or “The Traitors”" autocomplete="off">
+              <button type="submit">Search</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section class="shell archive" id="browse" aria-label="Review archive">
+        <details class="filter-panel" id="filter-panel" open>
+          <summary>
+            <span>Filter reviews</span>
+            <span class="filter-summary" id="filter-summary">All dates · All ratings</span>
+          </summary>
+          <div class="filter-panel__body">
+            <fieldset>
+              <legend>Critic rating</legend>
+              <label class="check-row"><input type="checkbox" name="rating" value="5"><span class="stars" aria-label="5 stars">★★★★★</span></label>
+              <label class="check-row"><input type="checkbox" name="rating" value="4"><span class="stars" aria-label="4 stars">★★★★<span class="star-empty">★</span></span></label>
+              <label class="check-row"><input type="checkbox" name="rating" value="3"><span class="stars" aria-label="3 stars">★★★<span class="star-empty">★★</span></span></label>
+              <label class="check-row"><input type="checkbox" name="rating" value="2"><span class="stars" aria-label="2 stars">★★<span class="star-empty">★★★</span></span></label>
+              <label class="check-row"><input type="checkbox" name="rating" value="1"><span class="stars" aria-label="1 star">★<span class="star-empty">★★★★</span></span></label>
+              <label class="check-row check-row--text"><input type="checkbox" name="rating" value="unrated"><span>Unrated</span></label>
+              <p class="filter-note">Shown only when the original review includes a score.</p>
+            </fieldset>
+
+            <div class="field-group">
+              <label for="date-range">Publication date</label>
+              <select id="date-range">
+                <option value="all">All dates</option>
+                <option value="12months">Last 12 months</option>
+                <option value="2020s">2020–present</option>
+                <option value="2010s">2010–2019</option>
+                <option value="before2010">Before 2010</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label for="reviewer">Reviewer</label>
+              <select id="reviewer">
+                <option value="">All reviewers</option>
+              </select>
+            </div>
+
+            <button class="text-button" id="clear-filters" type="button">Clear all filters</button>
+          </div>
+        </details>
+
+        <div class="results-column" id="results">
+          <div class="results-toolbar">
+            <p id="result-count" aria-live="polite">Loading reviews…</p>
+            <label class="sort-control" for="sort-select">
+              <span>Sort by</span>
+              <select id="sort-select">
+                <option value="newest">Newest first</option>
+                <option value="oldest">Oldest first</option>
+                <option value="reader_highest">Reader rating: high to low</option>
+                <option value="reader_lowest">Reader rating: low to high</option>
+                <option value="critic_highest">Critic rating: high to low</option>
+                <option value="critic_lowest">Critic rating: low to high</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="active-filters" id="active-filters" aria-label="Active filters"></div>
+          <div class="review-grid" id="review-grid" aria-busy="true"></div>
+
+          <nav class="pagination" id="pagination" aria-label="Review pages" hidden>
+            <button id="previous-page" type="button">Previous</button>
+            <p id="page-status">Page 1</p>
+            <button id="next-page" type="button">Next</button>
+          </nav>
+        </div>
+      </section>
+
+      <section class="about" id="about">
+        <div class="shell about__grid">
+          <div>
+            <p class="kicker">About the prototype</p>
+            <h2>A clearer way into the archive</h2>
+          </div>
+          <div class="about__copy">
+            <p>This independent concept reorganises publicly available review metadata so readers can search by programme, compare ratings and explore reviews by publication date.</p>
+            <p>The prototype is not affiliated with or endorsed by Guardian News &amp; Media. Headlines and links remain the property of their respective publisher.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="shell footer__inner">
+        <p><strong>The TV Review Index</strong><br>An independent archive concept.</p>
+        <p>Review data and links from <a href="https://open-platform.theguardian.com/" rel="noreferrer">The Guardian Open Platform</a>.</p>
+      </div>
+    </footer>
+  <script>
+
+const OFFLINE_REVIEWS = [{"id":"latest/brothers-2026-09-23","show_title":"Brothers","headline":"Brothers review – Woody Harrelson and Matthew McConaughey’s super-fun sitcom about the chance they’re related","summary":"A lightly fictionalised comedy built around the actors’ real-life friendship and the possibility that they share a father.","published_at":"2026-09-23T00:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Brothers%20Woody%20Harrelson%20Matthew%20McConaughey","thumbnail":"","source":"The Guardian"},{"id":"latest/great-british-bake-off-2026-09-22","show_title":"The Great British Bake Off","headline":"The Great British Bake Off review – Nigella is wise, generous … and perfect for this national treasure of a show","summary":"Nigella Lawson joins the beloved baking competition and proves a warm, generous fit for the tent.","published_at":"2026-09-22T16:30:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Great%20British%20Bake%20Off%20Nigella%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/youth-2026-09-22","show_title":"Youth","headline":"Youth review – Sharon Horgan is back … and she’s better than ever","summary":"Sharon Horgan’s comedy about a fiftysomething literary agent balances family upheaval and midlife dating with raw humour.","published_at":"2026-09-22T00:00:00Z","rating":null,"author":"Lucy Mangan","url":"https://www.theguardian.com/tv-and-radio/2026/sep/22/youth-review-sharon-horgan-is-back-and-shes-better-than-ever","thumbnail":"","source":"The Guardian"},{"id":"latest/wargame-2026-09-21","show_title":"The Wargame","headline":"The Wargame review – Michael Gove is awful at pretending to be PM in this mind-warping reality show","summary":"A simulated geopolitical crisis brings former politicians into an enjoyably terrifying cabinet-room experiment.","published_at":"2026-09-21T17:00:00Z","rating":null,"author":"Lucy Mangan","url":"https://www.theguardian.com/tv-and-radio/2026/sep/21/the-wargame-review-sky-one-michael-gove-nicola-sturgeon-reality-show","thumbnail":"","source":"The Guardian"},{"id":"latest/split-up-2026-09-20","show_title":"The Split Up","headline":"The Split Up review – this soapy divorce drama is loads of lavish, nonsensical fun","summary":"Sanjeev Bhaskar leads a glossy spinoff of The Split that embraces its full-on soapiness from the start.","published_at":"2026-09-20T17:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=The%20Split%20Up%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/jay-z-in-8-2026-09-19","show_title":"Jay-Z in 8","headline":"Jay-Z in 8 review – the rapper’s interminable interview show should have been a podcast","summary":"Rick Rubin’s eight-part conversation with Jay-Z is criticised as unstructured, padded and poorly suited to television.","published_at":"2026-09-19T00:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Jay-Z%20in%208%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/mobland-s2-2026-09-18","show_title":"MobLand season two","headline":"MobLand season two review – why is Pierce Brosnan’s tedious crime drama so obsessed with testicle jokes?","summary":"The crime drama returns with plenty of gangland swagger but little charm and far too much genital-based humour.","published_at":"2026-09-18T00:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=MobLand%20season%20two%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/monster-lizzie-borden-2026-09-17","show_title":"Monster: The Lizzie Borden Story","headline":"Monster: The Lizzie Borden Story review – it’s like Ryan Murphy’s new series was written by adolescent boys","summary":"The latest Monster instalment tackles the Borden murders with lurid excess and a frustratingly improvised feel.","published_at":"2026-09-17T11:42:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Monster%20Lizzie%20Borden%20Story%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/england-til-i-die-2026-09-16","show_title":"England ’Til I Die","headline":"England ’Til I Die review – a chilling portrait of a town turning on its neighbours","summary":"Jamie Roberts follows a Sussex man’s journey into the far right in a documentary with moments of bleak absurdity.","published_at":"2026-09-16T18:05:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=England%20Til%20I%20Die%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/neagley-2026-09-16","show_title":"Neagley","headline":"Neagley review – this violent Reacher spinoff is a glorious hour off from normal life","summary":"Reacher’s right-hand woman takes the lead in a brisk action spinoff devoted to beating up the bad guys.","published_at":"2026-09-16T03:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Neagley%20review%20Reacher","thumbnail":"","source":"The Guardian"},{"id":"latest/slow-horses-s6-2026-09-16","show_title":"Slow Horses season six","headline":"Slow Horses season six review – it gets harder to enjoy Gary Oldman’s spy thriller every year","summary":"The spy drama remains slick and confident, although its more conventional direction suggests it may be running short of ideas.","published_at":"2026-09-16T00:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Slow%20Horses%20season%20six%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/70-up-2026-09-15","show_title":"70 Up","headline":"70 Up review – a deeply moving conclusion for the 63-year-long TV experiment","summary":"The landmark documentary project reaches an emotional conclusion after following its participants for more than six decades.","published_at":"2026-09-15T17:30:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=70%20Up%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/no-big-deal-2026-09-15","show_title":"No Big Deal","headline":"No Big Deal review – is this how AI ends humanity … with a sitcom so bad it bores you to death?","summary":"An AI-themed sitcom receives a withering verdict for its laboured premise and lack of laughs.","published_at":"2026-09-15T11:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=No%20Big%20Deal%20TV%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/forever-home-2026-09-14","show_title":"Forever Home","headline":"Forever Home review – Graham Norton’s corpse-in-the-basement thriller absolutely stinks","summary":"Graham Norton’s novel reaches television as a murder thriller packed with broad gags and deliberately drab domesticity.","published_at":"2026-09-14T17:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Forever%20Home%20Graham%20Norton%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/apocalypse-2026-09-13","show_title":"Apocalypse","headline":"Apocalypse review – the stupidity of these people will make you scream yourself hoarse","summary":"Fourteen strangers attempt to survive an end-times social experiment that inspires more frustration than confidence.","published_at":"2026-09-13T17:15:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Apocalypse%20social%20experiment%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/a-killer-story-2026-09-11","show_title":"A Killer Story","headline":"A Killer Story review – this tale of two relentless armchair detectives is prestige true crime","summary":"Two determined amateur investigators draw a Pulitzer-winning journalist into a complicated double-murder case.","published_at":"2026-09-11T00:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=A%20Killer%20Story%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/the-paper-s2-2026-09-10","show_title":"The Paper season two","headline":"The Paper season two review – one of the best comedies on TV right now","summary":"The Office spinoff returns in brilliant form, with Sabrina Impacciatore singled out for awards-worthy comic work.","published_at":"2026-09-10T17:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=The%20Paper%20season%20two%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/tommy-robinson-money-2026-09-09","show_title":"Tommy Robinson: Where’s the Money Gone?","headline":"Tommy Robinson: Where’s the Money Gone? review – endless shocking allegations","summary":"An investigation follows the money surrounding the far-right activist and uncovers a stream of startling claims.","published_at":"2026-09-09T18:20:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Tommy%20Robinson%20Wheres%20the%20Money%20Gone%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/britains-forgotten-girls-2026-09-09","show_title":"Britain’s Forgotten Girls","headline":"Britain’s Forgotten Girls review – police saying they have ‘bigger fish to fry’ than groomers will horrify you","summary":"A disturbing documentary examines official failures surrounding the grooming and exploitation of vulnerable girls.","published_at":"2026-09-09T17:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Britains%20Forgotten%20Girls%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/mr-t-2026-09-08","show_title":"Mr T: I Pity the Fool","headline":"Mr T: I Pity the Fool review – a rare chance with an electrifying star … and they blew it","summary":"Mr T remains endlessly charismatic, but his life story is squeezed into a slight and disappointingly rushed documentary.","published_at":"2026-09-08T12:06:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Mr%20T%20I%20Pity%20the%20Fool%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/colin-from-accounts-final-2026-09-07","show_title":"Colin from Accounts final season","headline":"Colin from Accounts final season review – farewell to a blinding ray of TV sunshine","summary":"The warm Australian comedy reaches its final season with the charm and brightness that made it a favourite.","published_at":"2026-09-07T23:30:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Colin%20from%20Accounts%20final%20season%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/reckless-2026-09-07","show_title":"Reckless","headline":"Reckless review – this breathless thriller about siblings in a hit-and-run is a masterpiece","summary":"A hit-and-run sends two siblings into a propulsive thriller praised for its breathless execution.","published_at":"2026-09-07T00:20:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Reckless%20siblings%20hit-and-run%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/the-box-2026-09-05","show_title":"The Box","headline":"The Box review – no one knows what’s going on here … least of all Gary Lineker","summary":"A bewildering gameshow combines celebrity chaos, shipping containers and a format that appears to confuse everyone involved.","published_at":"2026-09-05T22:15:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=The%20Box%20Gary%20Lineker%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/grand-tour-2026-09-04","show_title":"The Grand Tour","headline":"The Grand Tour review – a deeply strange rejection of Jeremy Clarkson and the gang","summary":"A total presenter reset replaces the familiar petrolheads with a lesser-known trio who may yet prove provocatively entertaining.","published_at":"2026-09-04T09:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Grand%20Tour%20new%20presenters%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/la-mesias-2026-09-03","show_title":"La Mesías","headline":"La Mesías review – this utterly bizarre TV show is unforgettable","summary":"Six sisters are drilled into viral Christian pop stardom in a wildly ambitious and blackly funny Spanish series.","published_at":"2026-09-03T14:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=La%20Mesias%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/chad-powers-s2-2026-09-03","show_title":"Chad Powers season two","headline":"Chad Powers season two review – Glen Powell’s sweet sports comedy scores a touchdown","summary":"Glen Powell returns as the quarterback in disguise in a sports comedy praised as naughty, lovable and distinctive.","published_at":"2026-09-03T11:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Chad%20Powers%20season%20two%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/gentlemen-s2-2026-09-03","show_title":"The Gentlemen season two","headline":"The Gentlemen season two review – these geezers in tweed are irritating, stupid and extremely funny","summary":"Guy Ritchie’s crime caper returns with comforting ridiculousness, plentiful swearing and more tweed-clad hijinks.","published_at":"2026-09-03T09:02:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=The%20Gentlemen%20season%20two%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/stolen-babies-2026-09-02","show_title":"Stolen Babies","headline":"Stolen Babies review – the scale of this cruelty is almost impossible to fathom","summary":"A harrowing documentary confronts a cruel and far-reaching history of babies taken from their families.","published_at":"2026-09-02T23:30:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Stolen%20Babies%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/turning-point-911-2026-09-02","show_title":"Turning Point: Generation 9/11","headline":"Turning Point: Generation 9/11 review – nothing about that day has lost its power to shock or harrow the soul","summary":"A new instalment revisits 9/11 and the generation shaped by it without diminishing the event’s enduring emotional force.","published_at":"2026-09-02T09:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Turning%20Point%20Generation%209%2F11%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/raygun-breaking-badly-2026-09-01","show_title":"Raygun: Breaking Badly","headline":"Raygun: Breaking Badly review – the ridiculed Olympic B-girl gets the last laugh … and it’s a total joy","summary":"A Netflix film follows the viral Olympic breakdancer as she rebuilds after becoming a target of worldwide ridicule.","published_at":"2026-09-01T09:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Raygun%20Breaking%20Badly%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/tea-judi-dench-2026-08-31","show_title":"Tea With Judi Dench Featuring Sir Ian McKellen","headline":"Tea With Judi Dench Featuring Sir Ian McKellen review – TV that will make you cry thunderous tears","summary":"Two acting legends sit down together for an intimate and deeply emotional hour of television.","published_at":"2026-08-31T23:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Tea%20With%20Judi%20Dench%20Ian%20McKellen%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/love-cheats-2026-08-31","show_title":"Love Cheats","headline":"Love Cheats review – one romance scam is so hideous that a woman takes it to parliament","summary":"Victims of romance fraud tell stories of manipulation, financial harm and a campaign that reaches parliament.","published_at":"2026-08-31T00:15:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Love%20Cheats%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/vigil-2026-08-30","show_title":"Vigil","headline":"Vigil review – this police thriller is twisty, explosive … and so boring","summary":"Suranne Jones and Rose Leslie face an Arctic threat to world peace in an action-packed but emotionally flat return.","published_at":"2026-08-30T23:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Vigil%20Suranne%20Jones%20review%202026","thumbnail":"","source":"The Guardian"},{"id":"latest/rainmaker-2026-08-28","show_title":"The Rainmaker","headline":"The Rainmaker review – please don’t hurt your eyes trying to find anything good in this legal drama","summary":"A glossy adaptation of John Grisham’s novel is undermined by hokey dialogue and numbingly predictable plotting.","published_at":"2026-08-28T23:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=The%20Rainmaker%20TV%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/fightland-2026-08-27","show_title":"Fightland","headline":"Fightland review – 50 Cent’s farcical boxing show is featherweight at best","summary":"A boxing drama aims for sex, drugs and violence but never commits enough to escape a bruising slog.","published_at":"2026-08-27T23:05:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Fightland%2050%20Cent%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/rainbow-warrior-2026-08-27","show_title":"Rainbow Warrior","headline":"Rainbow Warrior review – spies bomb activists in truly gasp-inducing TV","summary":"Greenpeace veterans revisit the extraordinary story of French agents bombing the Rainbow Warrior in New Zealand.","published_at":"2026-08-27T01:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Rainbow%20Warrior%20review%20spies","thumbnail":"","source":"The Guardian"},{"id":"latest/never-ending-murder-2026-08-27","show_title":"The Never Ending Murder","headline":"The Never Ending Murder review – behind the lurid title, there is a family’s heartbreaking story","summary":"The disappearance of Nicola Payne is revisited with more care and emotional depth than the programme’s title suggests.","published_at":"2026-08-27T00:05:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=The%20Never%20Ending%20Murder%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/murder-detective-2026-08-26","show_title":"The Murder Detective","headline":"The Murder Detective review – is justice for Lyra McKee really this impossible?","summary":"Northern Irish detectives struggle to secure justice for journalist Lyra McKee in a painful and revealing investigation.","published_at":"2026-08-26T23:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=The%20Murder%20Detective%20Lyra%20McKee%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/revival-2026-08-24","show_title":"Revival","headline":"Revival review – step up, Walking Dead fans! This is the most moving zombie show ever","summary":"A gory but poignant noirish miniseries distinguishes itself from familiar zombie television through wit and feeling.","published_at":"2026-08-24T09:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Revival%20zombie%20show%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/terror-devil-silver-2026-08-23","show_title":"The Terror: Devil in Silver","headline":"The Terror: Devil in Silver review – this psychiatric hospital horror is scary on so many levels","summary":"Dan Stevens enters a haunted psychiatric hospital in a supernatural anthology filled with gore and jump scares.","published_at":"2026-08-23T23:05:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=The%20Terror%20Devil%20in%20Silver%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/great-adhd-myth-2026-08-18","show_title":"The Great ADHD Myth?","headline":"The Great ADHD Myth? review – the most controversial show of the year is here","summary":"Dr Max Pemberton assembles a team of medics for a documentary whose position on ADHD is clear and highly contentious.","published_at":"2026-08-18T22:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=The%20Great%20ADHD%20Myth%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/buried-michael-sheen-2026-08-17","show_title":"Buried With Michael Sheen","headline":"Buried With Michael Sheen review – this vital look at a toxic waste scandal is deeply enraging TV","summary":"Michael Sheen investigates alleged dumping of forever chemicals and their possible links to serious illness.","published_at":"2026-08-17T23:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Buried%20With%20Michael%20Sheen%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/lanterns-2026-08-17","show_title":"Lanterns","headline":"Lanterns review – Kyle Chandler and Aaron Pierre’s alien-hunting superhero caper is a bust","summary":"Even extraterrestrial threats and two charismatic leads cannot rescue this superhero series from an overwhelming sense of indifference.","published_at":"2026-08-17T12:33:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Lanterns%20Kyle%20Chandler%20Aaron%20Pierre%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/25-years-afghanistan-2026-08-17","show_title":"25 Years in Afghanistan","headline":"25 Years in Afghanistan review – the extraordinary life of an optimist","summary":"A documentary returns to Mir Hussain, whose life has been followed on camera since childhood amid decades of upheaval.","published_at":"2026-08-17T02:05:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=25%20Years%20in%20Afghanistan%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/kabul-2026-08-15","show_title":"Kabul","headline":"Kabul review – this thriller about Afghanistan’s abandonment is every bit as gripping as it is horrifying","summary":"A tense drama depicts the abandonment of Afghanistan with equal measures of urgency and horror.","published_at":"2026-08-15T22:50:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=Kabul%20TV%20review%20Afghanistan","thumbnail":"","source":"The Guardian"},{"id":"latest/he-had-it-coming-2026-08-15","show_title":"He Had It Coming","headline":"He Had It Coming review – this messy crime-comedy has all the subtlety of a mallet to the crotch","summary":"A crime-comedy leans into broad provocation but struggles to turn its blunt approach into a coherent whole.","published_at":"2026-08-15T00:40:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=He%20Had%20It%20Coming%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/schoolgirl-terrorist-2026-08-14","show_title":"The Schoolgirl Terrorist?","headline":"The Schoolgirl Terrorist? review – by the end of this documentary you feel like you have sat through a nightmare","summary":"The death of vulnerable teenager Rhianan Rudd exposes a devastating chain of grooming and institutional failure.","published_at":"2026-08-14T00:05:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=The%20Schoolgirl%20Terrorist%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/my-brilliant-career-2026-08-13","show_title":"My Brilliant Career","headline":"My Brilliant Career review – a joyous heroine lights up this rare and beautiful period drama","summary":"A vivid central performance powers a period drama celebrated for its beauty, rarity and joyous heroine.","published_at":"2026-08-13T09:01:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=My%20Brilliant%20Career%20joyous%20heroine%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/amputation-obsession-2026-08-13","show_title":"An Amputation Obsession: the Monster and the Surgeon","headline":"An Amputation Obsession: the Monster and the Surgeon review – an engrossing story, if you can stomach it","summary":"A disturbing medical true-crime story proves compelling viewing for those able to withstand its subject matter.","published_at":"2026-08-13T06:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=An%20Amputation%20Obsession%20Monster%20Surgeon%20review","thumbnail":"","source":"The Guardian"},{"id":"latest/spy-next-door-2026-08-12","show_title":"The Spy Next Door","headline":"The Spy Next Door review – a wild story … once the endless string of men have stopped talking","summary":"The case of Russian spy Anna Chapman becomes bogged down by male talking heads before a livelier and more thrilling conclusion.","published_at":"2026-08-12T23:00:00Z","rating":null,"author":"","url":"https://www.theguardian.com/search?q=The%20Spy%20Next%20Door%20Anna%20Chapman%20review","thumbnail":"","source":"The Guardian"}];
+const OFFLINE_RATINGS_KEY = "tv-review-index-reader-ratings-v1";
+
+function offlineRatings() {
+  try {
+    return JSON.parse(localStorage.getItem(OFFLINE_RATINGS_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function saveOfflineRatings(ratings) {
+  try {
+    localStorage.setItem(OFFLINE_RATINGS_KEY, JSON.stringify(ratings));
+  } catch {
+    // Some browsers restrict local storage for local files; the current page still updates.
+  }
+}
+
+function offlineItem(record, readerRatings) {
+  const readerRating = Number(readerRatings[record.id] || 0);
+  return {
+    id: record.id,
+    showTitle: record.show_title,
+    headline: record.headline,
+    summary: record.summary,
+    publishedAt: record.published_at,
+    rating: record.rating,
+    author: record.author,
+    url: record.url,
+    thumbnail: record.thumbnail,
+    readerRating: readerRating || null,
+    readerRatingCount: readerRating ? 1 : 0,
+    userRating: readerRating || null,
+  };
+}
+
+function offlinePayload(url) {
+  const params = url.searchParams;
+  const query = (params.get("q") || "").trim().toLocaleLowerCase();
+  const ratings = (params.get("rating") || "").split(",").filter(Boolean);
+  const reviewer = params.get("reviewer") || "";
+  const from = params.get("from") || "";
+  const to = params.get("to") || "";
+  const sort = params.get("sort") || "newest";
+  const pageSize = Math.max(1, Math.min(48, Number(params.get("page_size")) || 12));
+  let page = Math.max(1, Number(params.get("page")) || 1);
+  const readerRatings = offlineRatings();
+
+  let items = OFFLINE_REVIEWS.filter((record) => {
+    const searchable = `${record.show_title} ${record.summary}`.toLocaleLowerCase();
+    if (query && !searchable.includes(query)) return false;
+    if (ratings.length) {
+      const rating = record.rating === null ? "unrated" : String(record.rating);
+      if (!ratings.includes(rating)) return false;
+    }
+    if (reviewer && record.author !== reviewer) return false;
+    const date = record.published_at.slice(0, 10);
+    if (from && date < from) return false;
+    if (to && date > to) return false;
+    return true;
+  });
+
+  const dateAscending = (a, b) => a.published_at.localeCompare(b.published_at)
+    || a.show_title.localeCompare(b.show_title);
+  const dateDescending = (a, b) => -dateAscending(a, b);
+  const highRatingValue = (record) => record.rating === null ? -1 : record.rating;
+  const lowRatingValue = (record) => record.rating === null ? Number.POSITIVE_INFINITY : record.rating;
+  const highReaderValue = (record) => Number(readerRatings[record.id] || -1);
+  const lowReaderValue = (record) => readerRatings[record.id] ? Number(readerRatings[record.id]) : Number.POSITIVE_INFINITY;
+  if (sort === "oldest") items.sort(dateAscending);
+  if (sort === "newest") items.sort(dateDescending);
+  if (sort === "highest" || sort === "critic_highest") items.sort((a, b) => highRatingValue(b) - highRatingValue(a) || dateDescending(a, b));
+  if (sort === "lowest" || sort === "critic_lowest") items.sort((a, b) => lowRatingValue(a) - lowRatingValue(b) || dateDescending(a, b));
+  if (sort === "reader_highest") items.sort((a, b) => highReaderValue(b) - highReaderValue(a) || dateDescending(a, b));
+  if (sort === "reader_lowest") items.sort((a, b) => lowReaderValue(a) - lowReaderValue(b) || dateDescending(a, b));
+
+  const total = items.length;
+  const pages = Math.max(1, Math.ceil(total / pageSize));
+  page = Math.min(page, pages);
+  const start = (page - 1) * pageSize;
+  return {
+    items: items.slice(start, start + pageSize).map((record) => offlineItem(record, readerRatings)),
+    page,
+    pageSize,
+    pages,
+    total,
+  };
+}
+
+const originalFetch = window.fetch ? window.fetch.bind(window) : null;
+// The built-in sample data is only used when this file is opened straight from
+// disk (file://). Served by server.py, the page talks to the real /api endpoints.
+if (window.location.protocol === "file:") window.fetch = async (input, options) => {
+  const value = typeof input === "string" ? input : input.url;
+  const url = new URL(value, window.location.href);
+  if (url.pathname.endsWith("/api/meta")) {
+    const reviewers = [...new Set(OFFLINE_REVIEWS.map((record) => record.author).filter(Boolean))]
+      .sort((a, b) => a.localeCompare(b));
+    const dates = OFFLINE_REVIEWS.map((record) => record.published_at).sort();
+    const payload = {
+      count: OFFLINE_REVIEWS.length,
+      earliest: dates[0] || null,
+      latest: dates.at(-1) || null,
+      reviewers,
+    };
+    return { ok: true, json: async () => payload };
+  }
+  if (url.pathname.endsWith("/api/reviews")) {
+    return { ok: true, json: async () => offlinePayload(url) };
+  }
+  if (url.pathname.endsWith("/api/ratings") && (options?.method || "GET").toUpperCase() === "POST") {
+    const payload = JSON.parse(options.body || "{}");
+    const rating = Number(payload.rating);
+    const exists = OFFLINE_REVIEWS.some((record) => record.id === payload.reviewId);
+    if (!exists || !Number.isInteger(rating) || rating < 1 || rating > 5) {
+      return { ok: false, status: 400, json: async () => ({ error: "Invalid rating." }) };
+    }
+    const ratings = offlineRatings();
+    ratings[payload.reviewId] = rating;
+    saveOfflineRatings(ratings);
+    return {
+      ok: true,
+      json: async () => ({
+        reviewId: payload.reviewId,
+        readerRating: rating,
+        readerRatingCount: 1,
+        userRating: rating,
+      }),
+    };
+  }
+  if (originalFetch) return originalFetch(input, options);
+  throw new Error("Network requests are unavailable in this offline demonstration.");
+};
+
+const state = {
+  query: "",
+  ratings: [],
+  dateRange: "all",
+  reviewer: "",
+  sort: "newest",
+  page: 1,
+  pageSize: 12,
+  total: 0,
+  pages: 1,
+};
+
+const elements = {
+  form: document.querySelector("#search-form"),
+  search: document.querySelector("#search-input"),
+  grid: document.querySelector("#review-grid"),
+  resultCount: document.querySelector("#result-count"),
+  archiveCount: document.querySelector("#archive-count"),
+  sort: document.querySelector("#sort-select"),
+  dateRange: document.querySelector("#date-range"),
+  reviewer: document.querySelector("#reviewer"),
+  clear: document.querySelector("#clear-filters"),
+  activeFilters: document.querySelector("#active-filters"),
+  filterSummary: document.querySelector("#filter-summary"),
+  pagination: document.querySelector("#pagination"),
+  previous: document.querySelector("#previous-page"),
+  next: document.querySelector("#next-page"),
+  pageStatus: document.querySelector("#page-status"),
+  ratingInputs: [...document.querySelectorAll('input[name="rating"]')],
+};
+
+const html = (value = "") => String(value)
+  .replaceAll("&", "&amp;")
+  .replaceAll("<", "&lt;")
+  .replaceAll(">", "&gt;")
+  .replaceAll('"', "&quot;")
+  .replaceAll("'", "&#039;");
+
+function safeGuardianUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && /(^|\.)theguardian\.com$/.test(url.hostname)
+      ? url.href
+      : "https://www.theguardian.com/tv-and-radio/series/tv-review";
+  } catch {
+    return "https://www.theguardian.com/tv-and-radio/series/tv-review";
+  }
+}
+
+function formatDate(value) {
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(value));
+}
+
+function ratingMarkup(rating) {
+  if (rating === null || rating === undefined) {
+    return '<span class="review-card__rating">Unrated</span>';
+  }
+  const filled = "★".repeat(rating);
+  const empty = "★".repeat(Math.max(0, 5 - rating));
+  return `<span class="review-card__rating" aria-label="${rating} out of 5 stars">${filled}<span class="star-empty">${empty}</span></span>`;
+}
+
+function readerRatingMarkup(review) {
+  const hasRatings = review.readerRating !== null && review.readerRating !== undefined;
+  const average = hasRatings ? Number(review.readerRating).toFixed(1) : "—";
+  const count = Number(review.readerRatingCount || 0);
+  const userRating = Number(review.userRating || 0);
+  const countLabel = count === 1 ? "1 rating" : `${count} ratings`;
+  const buttons = [1, 2, 3, 4, 5].map((value) => `
+    <button
+      class="reader-star${userRating >= value ? " is-selected" : ""}"
+      type="button"
+      data-reader-rating="${value}"
+      data-review-id="${html(review.id)}"
+      aria-label="Rate ${html(review.showTitle)} ${value} out of 5"
+      aria-pressed="${userRating === value ? "true" : "false"}"
+    >★</button>
+  `).join("");
+  const hint = userRating ? `Your rating: ${userRating} star${userRating === 1 ? "" : "s"}` : "Select your rating";
+
+  return `
+    <div class="reader-rating" data-reader-panel="${html(review.id)}">
+      <div class="reader-rating__summary">
+        <span class="reader-rating__label">Reader rating</span>
+        <strong>${average}</strong>
+        <span>/ 5 · ${countLabel}</span>
+      </div>
+      <div class="reader-rating__buttons" role="group" aria-label="Your rating for ${html(review.showTitle)}">
+        ${buttons}
+        <span class="reader-rating__hint">${hint}</span>
+      </div>
+      <p class="reader-rating__status" role="status" aria-live="polite"></p>
+    </div>
+  `;
+}
+
+function renderCard(review) {
+  const url = safeGuardianUrl(review.url);
+  const linkLabel = url.includes("/search?") ? "Find the original review" : "Read the original review";
+  const headline = review.headline && review.headline !== review.showTitle
+    ? `<p class="review-card__headline">${html(review.headline)}</p>`
+    : "";
+  const author = review.author ? `<strong>${html(review.author)}</strong> · ` : "";
+
+  return `
+    <article class="review-card">
+      <div class="review-card__type">
+        <span>TV review</span>
+        ${ratingMarkup(review.rating)}
+      </div>
+      <h2><a href="${url}" target="_blank" rel="noreferrer">${html(review.showTitle)}</a></h2>
+      ${headline}
+      <p class="review-card__summary">${html(review.summary || "Open the original Guardian review for the critic’s full verdict.")}</p>
+      ${readerRatingMarkup(review)}
+      <p class="review-card__meta">${author}<time datetime="${html(review.publishedAt)}">${formatDate(review.publishedAt)}</time></p>
+      <a class="review-card__link" href="${url}" target="_blank" rel="noreferrer">${linkLabel} <span aria-hidden="true">↗</span></a>
+    </article>
+  `;
+}
+
+function renderLoading() {
+  elements.grid.setAttribute("aria-busy", "true");
+  elements.grid.innerHTML = Array.from({ length: 6 }, (_, index) => `
+    <article class="review-card" aria-hidden="true">
+      <div class="review-card__type"><span>TV review</span></div>
+      <h2>${index % 2 ? "Searching the archive…" : "Loading reviews…"}</h2>
+      <p class="review-card__summary">Collecting publication dates, reviewers and ratings.</p>
+    </article>
+  `).join("");
+}
+
+function renderResults(payload) {
+  state.total = payload.total;
+  state.pages = Math.max(1, payload.pages);
+  elements.grid.setAttribute("aria-busy", "false");
+
+  if (!payload.items.length) {
+    elements.grid.innerHTML = `
+      <div class="empty-state">
+        <h2>No reviews found</h2>
+        <p>Try a shorter programme title or clear one of the filters.</p>
+      </div>`;
+  } else {
+    elements.grid.innerHTML = payload.items.map(renderCard).join("");
+  }
+
+  const searchSuffix = state.query ? ` for “${state.query}”` : "";
+  elements.resultCount.textContent = `${payload.total.toLocaleString("en-GB")} ${payload.total === 1 ? "review" : "reviews"}${searchSuffix}`;
+
+  elements.pagination.hidden = payload.pages <= 1;
+  elements.previous.disabled = state.page <= 1;
+  elements.next.disabled = state.page >= payload.pages;
+  elements.pageStatus.textContent = `Page ${state.page} of ${Math.max(1, payload.pages)}`;
+  renderActiveFilters();
+}
+
+function renderError() {
+  elements.grid.setAttribute("aria-busy", "false");
+  elements.grid.innerHTML = `
+    <div class="error-state">
+      <h2>The archive could not be loaded</h2>
+      <p>Start the site with <code>python3 server.py</code>, then refresh this page.</p>
+    </div>`;
+  elements.resultCount.textContent = "Archive unavailable";
+}
+
+function getDateBounds() {
+  const now = new Date();
+  switch (state.dateRange) {
+    case "12months": {
+      const from = new Date(now);
+      from.setUTCFullYear(from.getUTCFullYear() - 1);
+      return { from: from.toISOString().slice(0, 10), to: "" };
+    }
+    case "2020s": return { from: "2020-01-01", to: "" };
+    case "2010s": return { from: "2010-01-01", to: "2019-12-31" };
+    case "before2010": return { from: "", to: "2009-12-31" };
+    default: return { from: "", to: "" };
+  }
+}
+
+function buildQuery() {
+  const params = new URLSearchParams({
+    sort: state.sort,
+    page: String(state.page),
+    page_size: String(state.pageSize),
+  });
+  if (state.query) params.set("q", state.query);
+  if (state.ratings.length) params.set("rating", state.ratings.join(","));
+  if (state.reviewer) params.set("reviewer", state.reviewer);
+  const { from, to } = getDateBounds();
+  if (from) params.set("from", from);
+  if (to) params.set("to", to);
+  return params;
+}
+
+function syncAddressBar() {
+  const params = buildQuery();
+  params.delete("page_size");
+  if (state.page === 1) params.delete("page");
+  if (state.sort === "newest") params.delete("sort");
+  const query = params.toString();
+  try {
+    history.replaceState(null, "", query ? `?${query}` : location.pathname);
+  } catch {
+    // Local file previews can restrict History API changes; search still works.
+  }
+}
+
+async function loadReviews({ scroll = false } = {}) {
+  renderLoading();
+  syncAddressBar();
+  try {
+    const response = await fetch(`/api/reviews?${buildQuery()}`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    renderResults(await response.json());
+    if (scroll) document.querySelector("#results").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (error) {
+    console.error(error);
+    renderError();
+  }
+}
+
+function dateRangeLabel() {
+  return elements.dateRange.options[elements.dateRange.selectedIndex].text;
+}
+
+function renderActiveFilters() {
+  const chips = [];
+  if (state.query) chips.push({ label: `Search: ${state.query}`, action: "query" });
+  if (state.ratings.length) {
+    const label = state.ratings.map((rating) => rating === "unrated" ? "Unrated" : `${rating}★`).join(", ");
+    chips.push({ label: `Critic rating: ${label}`, action: "ratings" });
+  }
+  if (state.dateRange !== "all") chips.push({ label: dateRangeLabel(), action: "date" });
+  if (state.reviewer) chips.push({ label: state.reviewer, action: "reviewer" });
+
+  elements.activeFilters.innerHTML = chips.map((chip) => `
+    <span class="filter-chip">
+      ${html(chip.label)}
+      <button type="button" data-clear="${chip.action}" aria-label="Remove ${html(chip.label)} filter">×</button>
+    </span>
+  `).join("");
+
+  const summary = [
+    state.dateRange === "all" ? "All dates" : dateRangeLabel(),
+    state.ratings.length ? `${state.ratings.length} rating filter${state.ratings.length === 1 ? "" : "s"}` : "All ratings",
+  ];
+  elements.filterSummary.textContent = summary.join(" · ");
+}
+
+function applyUrlState() {
+  const params = new URLSearchParams(location.search);
+  state.query = params.get("q") || "";
+  state.ratings = (params.get("rating") || "").split(",").filter(Boolean);
+  state.reviewer = params.get("reviewer") || "";
+  state.sort = params.get("sort") || "newest";
+  if (state.sort === "highest") state.sort = "critic_highest";
+  if (state.sort === "lowest") state.sort = "critic_lowest";
+  state.page = Math.max(1, Number(params.get("page")) || 1);
+
+  const from = params.get("from");
+  const to = params.get("to");
+  if (from === "2020-01-01" && !to) state.dateRange = "2020s";
+  if (from === "2010-01-01" && to === "2019-12-31") state.dateRange = "2010s";
+  if (!from && to === "2009-12-31") state.dateRange = "before2010";
+
+  elements.search.value = state.query;
+  elements.sort.value = state.sort;
+  elements.dateRange.value = state.dateRange;
+  elements.ratingInputs.forEach((input) => { input.checked = state.ratings.includes(input.value); });
+}
+
+async function loadMetadata() {
+  try {
+    const response = await fetch("/api/meta");
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const meta = await response.json();
+    elements.archiveCount.textContent = meta.count.toLocaleString("en-GB");
+    meta.reviewers.forEach((reviewer) => {
+      const option = document.createElement("option");
+      option.value = reviewer;
+      option.textContent = reviewer;
+      elements.reviewer.append(option);
+    });
+    elements.reviewer.value = state.reviewer;
+  } catch {
+    elements.archiveCount.textContent = "—";
+  }
+}
+
+function resetFilters() {
+  state.query = "";
+  state.ratings = [];
+  state.dateRange = "all";
+  state.reviewer = "";
+  state.sort = "newest";
+  state.page = 1;
+  elements.search.value = "";
+  elements.dateRange.value = "all";
+  elements.reviewer.value = "";
+  elements.sort.value = "newest";
+  elements.ratingInputs.forEach((input) => { input.checked = false; });
+  loadReviews();
+}
+
+elements.form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  state.query = elements.search.value.trim();
+  state.page = 1;
+  loadReviews();
+});
+
+elements.ratingInputs.forEach((input) => input.addEventListener("change", () => {
+  state.ratings = elements.ratingInputs.filter((item) => item.checked).map((item) => item.value);
+  state.page = 1;
+  loadReviews();
+}));
+
+elements.dateRange.addEventListener("change", () => {
+  state.dateRange = elements.dateRange.value;
+  state.page = 1;
+  loadReviews();
+});
+
+elements.reviewer.addEventListener("change", () => {
+  state.reviewer = elements.reviewer.value;
+  state.page = 1;
+  loadReviews();
+});
+
+elements.sort.addEventListener("change", () => {
+  state.sort = elements.sort.value;
+  state.page = 1;
+  loadReviews();
+});
+
+elements.clear.addEventListener("click", resetFilters);
+
+elements.grid.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-reader-rating]");
+  if (!button) return;
+  const panel = button.closest("[data-reader-panel]");
+  const status = panel.querySelector(".reader-rating__status");
+  const buttons = [...panel.querySelectorAll("[data-reader-rating]")];
+  const rating = Number(button.dataset.readerRating);
+  buttons.forEach((item) => { item.disabled = true; });
+  status.textContent = "Saving your rating…";
+  try {
+    const response = await fetch("/api/ratings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reviewId: button.dataset.reviewId, rating }),
+    });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
+    if (state.sort === "reader_highest" || state.sort === "reader_lowest") {
+      await loadReviews();
+      return;
+    }
+    panel.querySelector(".reader-rating__summary strong").textContent = Number(payload.readerRating).toFixed(1);
+    const countLabel = payload.readerRatingCount === 1 ? "1 rating" : `${payload.readerRatingCount} ratings`;
+    panel.querySelector(".reader-rating__summary span:last-child").textContent = `/ 5 · ${countLabel}`;
+    panel.querySelector(".reader-rating__hint").textContent = `Your rating: ${rating} star${rating === 1 ? "" : "s"}`;
+    buttons.forEach((item) => {
+      const value = Number(item.dataset.readerRating);
+      item.classList.toggle("is-selected", value <= rating);
+      item.setAttribute("aria-pressed", String(value === rating));
+    });
+    status.textContent = "Rating saved.";
+  } catch (error) {
+    console.error(error);
+    status.textContent = "Your rating could not be saved. Please try again.";
+  } finally {
+    buttons.forEach((item) => { item.disabled = false; });
+  }
+});
+
+elements.activeFilters.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-clear]");
+  if (!button) return;
+  if (button.dataset.clear === "query") {
+    state.query = "";
+    elements.search.value = "";
+  }
+  if (button.dataset.clear === "ratings") {
+    state.ratings = [];
+    elements.ratingInputs.forEach((input) => { input.checked = false; });
+  }
+  if (button.dataset.clear === "date") {
+    state.dateRange = "all";
+    elements.dateRange.value = "all";
+  }
+  if (button.dataset.clear === "reviewer") {
+    state.reviewer = "";
+    elements.reviewer.value = "";
+  }
+  state.page = 1;
+  loadReviews();
+});
+
+elements.previous.addEventListener("click", () => {
+  if (state.page > 1) {
+    state.page -= 1;
+    loadReviews({ scroll: true });
+  }
+});
+
+elements.next.addEventListener("click", () => {
+  if (state.page < state.pages) {
+    state.page += 1;
+    loadReviews({ scroll: true });
+  }
+});
+
+applyUrlState();
+if (window.matchMedia("(max-width: 760px)").matches) {
+  document.querySelector("#filter-panel").removeAttribute("open");
+}
+loadMetadata();
+loadReviews();
+
+</script>
+</body>
+</html>

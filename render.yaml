@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=https://render.com/schema/render.yaml.json
+# Render Blueprint for The TV Review Index.
+# Deploy: push this repo to GitHub, then Render Dashboard -> New -> Blueprint.
+services:
+  - type: web
+    name: tv-review-index
+    runtime: python
+    # A persistent disk needs a paid instance type. See README for the free-plan option.
+    plan: starter
+    region: frankfurt
+    buildCommand: pip install -r requirements.txt
+    # One worker: a single process owns the SQLite file and the CAPI sync loop.
+    # Threads give concurrency for the read-mostly API.
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 8 --timeout 120 --access-logfile - server:app
+    healthCheckPath: /healthz
+    disk:
+      name: tv-review-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      # Set in the Render Dashboard on first deploy; never commit the key.
+      - key: GUARDIAN_API_KEY
+        sync: false
+      # Keep the index and reader ratings on the persistent disk.
+      - key: DB_PATH
+        value: /var/data/reviews.db
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: SYNC_INTERVAL_MINUTES
+        value: "30"

@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+reviews.db
+reviews.db-wal
+reviews.db-shm
+.DS_Store
