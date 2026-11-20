@@ -25,6 +25,7 @@ import html
 import logging
 import os
 import re
+import shutil
 import sqlite3
 import sys
 import threading
@@ -90,6 +91,11 @@ def connect() -> sqlite3.Connection:
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA foreign_keys=ON")
+    # Sorts and grouped subqueries stay in RAM rather than spilling to temp files
+    # on whatever TMPDIR happens to be, and a reader waits rather than failing
+    # while the sync thread holds a write.
+    conn.execute("PRAGMA temp_store=MEMORY")
+    conn.execute("PRAGMA busy_timeout=10000")
     conn.executescript(SCHEMA)
     return conn
 
@@ -316,15 +322,39 @@ def index():
     return send_from_directory(BASE_DIR, "index.html")
 
 
+@app.errorhandler(sqlite3.Error)
+def database_error(error: sqlite3.Error):
+    """Return the database's own message instead of a bare 500, and log the traceback."""
+    log.exception("Database error serving %s", request.path)
+    return jsonify(error="Database error.", detail=f"{type(error).__name__}: {error}"), 500
+
+
+def disk_free_mb() -> float | None:
+    try:
+        usage = shutil.disk_usage(DB_PATH.parent)
+        return round(usage.free / 1_000_000, 1)
+    except OSError:
+        return None
+
+
 @app.get("/healthz")
 def healthz():
     """Readiness probe. Reports the index size but stays healthy while it is still filling."""
     try:
         count = db().execute("SELECT COUNT(*) FROM reviews").fetchone()[0]
+        ratings = db().execute("SELECT COUNT(*) FROM reader_ratings").fetchone()[0]
     except sqlite3.Error as error:
-        return jsonify(status="error", error=str(error)), 503
+        return jsonify(status="error", error=f"{type(error).__name__}: {error}"), 503
     syncing = _sync_thread is not None and _sync_thread.is_alive()
-    return jsonify(status="ok", reviews=count, syncing=syncing)
+    return jsonify(status="ok", reviews=count, ratings=ratings, syncing=syncing,
+                   diskFreeMb=disk_free_mb())
+
+
+@app.get("/healthz/integrity")
+def integrity():
+    """On-demand PRAGMA integrity_check. Slow on a large index; not part of the health check."""
+    rows = [row[0] for row in db().execute("PRAGMA integrity_check")]
+    return jsonify(ok=rows == ["ok"], result=rows[:20], diskFreeMb=disk_free_mb())
 
 
 @app.get("/api/meta")
